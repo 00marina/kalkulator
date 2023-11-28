@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="author" content="Marina Maric" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://kit.fontawesome.com/1f7b6fc75b.js" crossorigin="anonymous"></script>
+    <title>Kalkulator</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        box-sizing: border-box;
+        height: 100%;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #050517;
+        color: #f4e3b2;
+        margin-top: 100px;
+        position: relative;
+      }
+
+      /* main container, forma i njihovi elementi*/
+      #main-containter,
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      h1 {
+        font-size: 30pt;
+        font-weight: bolder;
+        color: #cf5c36;
+      }
+
+      #info {
+        margin-bottom: 30px;
+        color: #E29A28;
+      }
+
+      /* inputi */
+      #inputi {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        margin-top: 20px;
+        font-size: 15pt;
+        color: #cf5c36;
+      }
+
+      input {
+        width: 300px;
+        height: 30px;
+        border: none;
+        background-color: transparent;
+        border-bottom: 2px solid #f4e3b2;
+        margin-top: 10px;
+        margin-bottom: 30px;
+        color: #cf5c36;
+        font-size: 13pt;
+        padding: 2px 10px;
+        outline: none;
+        transition: border-color 0.3s ease;
+      }
+
+      input:focus {
+        border-color: #cf5c36;
+      }
+
+      /* operacije box */
+      #operacije {
+        display: flex;
+        gap: 30px;
+        padding: 20px;
+        border-radius: 35px;
+        -webkit-box-shadow: 0px 0px 17px 5px #cf5c36;
+        box-shadow: 0px 0px 17px 5px #cf5c36;
+      }
+
+      #operacije button {
+        font-size: 25pt;
+        width: 60px;
+        height: 60px;
+        color: #cf5c36;
+        background-color: transparent;
+        border: none;
+        font-weight: 900;
+        transition: color 0.3s ease;
+      }
+
+      
+      /* klase za js - rezultat display*/
+      .active {
+        min-width: 300px;
+        min-height: 100px;
+        font-size: 50pt;
+        text-align: center;
+        padding: 10px;
+        margin-bottom: 100px;
+        color: #cf5c36;
+      }
+
+      .not {
+        display: none;
+      }
+
+      /* animacije */
+      #operacije button:hover {
+        color: #f4e3b2;
+      }
+
+      #dugme-reset:hover {
+        color: #f4e3b2;
+      }
+
+      /* dugme za reset kalk*/
+      #dugme-reset {
+        position: absolute;
+        top: -70px;
+        left: 34em;
+        width: 200px;
+        font-size: 25pt;
+        padding: 10px;
+        font-weight: bold;
+        border-radius: 25px;
+        color: #cf5c36;
+        border: none;
+        background-color: transparent;
+        -webkit-box-shadow: 0px 0px 17px 5px #cf5c36;
+        box-shadow: 0px 0px 17px 5px #cf5c36;
+        transition: color 0.3s ease;
+      }
+
+      /* permanentni prostor za display rezultata*/
+      #rezultat-containter {
+        width: 200px;
+        height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="main-containter">
+      <h1>Kalkulator</h1>
+      <p id="info">
+        Unesite brojeve u dostupna polja. Zatim odaberite operaciju.
+      </p>
+      <form id="forma">
+        <div id="inputi">
+          <label for="broj1">Prvi broj: </label>
+          <input type="text" name="broj1" id="broj1" value="" autocomplete="off" required />
+
+          <label for="broj2">Drugi broj: </label>
+          <input type="text" name="broj2" id="broj2" value="" autocomplete="off" required />
+        </div>
+
+        <div id="operacije">
+          <button type="button" id="sabiranje" onclick="saberi()"><i class="fa-solid fa-plus"></i></button>
+          <button type="button" id="oduzimanje" onclick="oduzmi()"><i class="fa-solid fa-minus"></i></button>
+          <button type="button" id="mnozenje" onclick="pomnozi()"><i class="fa-solid fa-asterisk"></i></button>
+          <button type="button" id="dijeljenje" onclick="podijeli()"><i class="fa-solid fa-divide"></i></button>
+        </div>
+
+        <button type="button" id="dugme-reset" onclick="resetuj()">Reset</button>
+      </form>
+
+      <div id="rezultat-containter">
+        <p id="rezultat"></p>
+      </div>
+    </div>
+
+    <script>
+      //unos polja
+      let polje1 = document.getElementById("broj1");
+      let polje2 = document.getElementById("broj2");
+
+      // var za input field value
+      let unos1Vrijednost;
+      let unos2Vrijednost;
+
+      // display rezulatat
+      let prikazRezultata = document.getElementById("rezultat");
+
+      let rezultatOperacije;
+
+      // input event listener
+      function vrijednostiInputa() {
+        polje1.addEventListener("input", function () {
+          unos1Vrijednost = polje1.value;
+        });
+
+        polje2.addEventListener("input", function () {
+          unos2Vrijednost = polje2.value;
+        });
+      }
+      vrijednostiInputa();
+
+      //polja moraju biti popunjena
+      function popunjenaPolja() {
+        if (unos1Vrijednost === undefined || unos2Vrijednost === undefined) {
+            prikazRezultata.className = "not";
+            alert("Popunite sva polja.");
+            return true;
+        } else {
+            prikazRezultata.className = "active";
+        }
+      }
+      
+
+      //operacije
+      //sabiranje
+      function saberi() {
+        if(popunjenaPolja() == true) {
+          return false;
+        }
+
+        setTimeout(function () {
+          rezultatOperacije =
+            parseFloat(unos1Vrijednost) + parseFloat(unos2Vrijednost);
+            if (isNaN(rezultatOperacije)) {
+              prikazRezultata.className = "not";
+              alert("Popunite sva polja.");
+            } else {
+              prikazRezultata.innerHTML = rezultatOperacije;
+            }
+        }, 0);
+
+      }
+
+      //oduzimanje
+      function oduzmi() {
+        popunjenaPolja();
+
+        setTimeout(function () {
+          rezultatOperacije =
+            parseFloat(unos1Vrijednost) - parseFloat(unos2Vrijednost);
+            if (isNaN(rezultatOperacije)) {
+              prikazRezultata.className = "not";
+              alert("Popunite sva polja.");
+            } else {
+              prikazRezultata.innerHTML = rezultatOperacije;
+            }
+        }, 0);
+      }
+
+      //mnozenje
+      function pomnozi() {
+        popunjenaPolja();
+
+        setTimeout(function () {
+          rezultatOperacije =
+            parseFloat(unos1Vrijednost) * parseFloat(unos2Vrijednost);
+            if (isNaN(rezultatOperacije)) {
+              prikazRezultata.className = "not";
+              alert("Popunite sva polja.");
+            } else {
+              prikazRezultata.innerHTML = rezultatOperacije;
+            }
+        }, 0);
+
+      }
+
+      //dijeljenje
+      function podijeli() {
+        popunjenaPolja();
+
+        setTimeout(function () {
+          rezultatOperacije =
+            parseFloat(unos1Vrijednost) / parseFloat(unos2Vrijednost);
+            if (isNaN(rezultatOperacije)) {
+              prikazRezultata.className = "not";
+              alert("Popunite sva polja.");
+            } else {
+              prikazRezultata.innerHTML = rezultatOperacije;
+            }
+        }, 0);
+      }
+
+      //calc reset
+      function resetuj() {
+        location.reload();
+      }
+    </script>
+  </body>
+</html>
